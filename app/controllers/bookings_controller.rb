@@ -1,12 +1,12 @@
 class BookingsController < ApplicationController
   def create
-    room = Room.find(params[:room_id])
+    room = Room.find_by(id: params[:room_id])
 
-    if !room
-      render json: {message: 'Invalid room id'}, status: :unprocessable_entity
+    if room.nil?
+      return render json: {message: 'Invalid room id'}, status: :not_found
     end
 
-    if room.has_conflicting_bookings(params[:start], params[:end])
+    if room.has_conflicting_bookings?(params[:start], params[:end])
       render json: {message: 'Booking conflicts with an existing booking'}, status: :unprocessable_entity
     else
       if Booking.create(booking_params).valid?
